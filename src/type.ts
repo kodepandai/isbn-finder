@@ -1,6 +1,6 @@
 export interface Book {
   title: string;
-  cover: {
+  cover?: {
     small?: string;
     medium?: string;
     large?: string;
@@ -9,7 +9,7 @@ export interface Book {
   publishers: string[];
   publish_date: string;
   number_of_pages?: number;
-  description: string;
+  description?: string;
 }
 export interface Crawler {
   getBookByIsbn: (isbn: string) => Promise<Book>;

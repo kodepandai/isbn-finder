@@ -28,7 +28,7 @@ interface OpenLibraryBookData {
 }
 interface OpenLibraryBookDetail {
   details: {
-    description: {
+    description?: {
       type: string;
       value: string;
     };
@@ -48,7 +48,7 @@ export class OpenLibrary implements Crawler {
       publishers: data.publishers.map((p) => p.name),
       publish_date: data.publish_date,
       number_of_pages: data.number_of_pages,
-      description: detail.details.description.value,
+      description: detail.details.description?.value,
     };
   }
 
