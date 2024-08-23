@@ -1,14 +1,22 @@
 import { OpenLibrary } from "./crawler/openlibrary";
 import { Sdia35 } from "./crawler/sdia35";
 
-export async function getBookByIsbn(isbn: string, debug = false) {
-  const crawlers = [OpenLibrary,Sdia35];
-  Promise.race
+const allCrawlers = {
+  openlib: OpenLibrary,
+  sdia35: Sdia35,
+}
+
+export async function resolve(isbn: string, crawlerIds: (keyof typeof allCrawlers)[] = Object.keys(allCrawlers) as any[]) {
+  const crawlers = Object.fromEntries(Object.entries(allCrawlers).filter(([key]) => crawlerIds.includes(key as any)));
+  const controllers = Object.fromEntries(Object.entries(crawlers).map(([key]) => [key, new AbortController]));
   const allRes = await Promise.allSettled(
-    crawlers.map((c) => new c().getBookByIsbn(isbn)),
+    Object.entries(crawlers).map(async ([key, c]) => {
+      const res = await new c(controllers[key].signal).getBookByIsbn(isbn);
+      if (res) {
+        Object.entries(controllers).filter(([ckey]) => ckey != key).forEach(([_, x]) => x.abort());
+        return res
+      }
+    })
   );
-  if(debug && allRes.findIndex(x=>x.status == "fulfilled") == -1){
-    console.log(allRes.filter((res) => res.status === "rejected"));
-  }
   return allRes.find((res) => res.status === "fulfilled")?.value;
 }

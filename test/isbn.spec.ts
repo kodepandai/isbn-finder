@@ -1,5 +1,5 @@
 import { it, expect, describe } from "bun:test";
-import { getBookByIsbn } from "../src";
+import { resolve } from "../src";
 
 describe("get book by isbn", () => {
   [
@@ -21,7 +21,7 @@ describe("get book by isbn", () => {
     }
   ].map(({ isbn, title }) => {
     it("can get detail book of isbn " + isbn, async () => {
-      const res = await getBookByIsbn(isbn, true);
+      const res = await resolve(isbn);
       if (res?.cover) {
         expect(res.cover).toEqual(
           expect.objectContaining({

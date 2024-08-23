@@ -1,5 +1,6 @@
 import { BookNotFound } from "../exception/BookNotFound";
-import type { Book, Crawler } from "../type";
+import type { Book } from "../type";
+import { BaseCrawler } from "./base";
 interface OpenLibraryBookData {
   url: string;
   key: string;
@@ -37,7 +38,7 @@ interface OpenLibraryBookDetail {
 
 type OpenLibraryBookDataRes = Record<string, OpenLibraryBookData>;
 type OpenLibraryBookDetailRes = Record<string, OpenLibraryBookDetail>;
-export class OpenLibrary implements Crawler {
+export class OpenLibrary extends BaseCrawler {
   async getBookByIsbn(isbn: string): Promise<Book> {
     const data = await this.getData(isbn);
     const detail = await this.getDetail(isbn);
@@ -55,6 +56,7 @@ export class OpenLibrary implements Crawler {
   private async getData(isbn: string) {
     const bookData: OpenLibraryBookDataRes = await fetch(
       `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`,
+      { signal: this.signal }
     ).then((res) => res.json());
     if (Object.keys(bookData).length === 0) {
       throw new BookNotFound();
@@ -65,6 +67,7 @@ export class OpenLibrary implements Crawler {
   private async getDetail(isbn: string) {
     const bookDetail: OpenLibraryBookDetailRes = await fetch(
       `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=details`,
+      { signal: this.signal }
     ).then((res) => res.json());
     if (Object.keys(bookDetail).length == 0) {
       throw new BookNotFound();
