@@ -18,6 +18,10 @@ describe("get book by isbn", () => {
     {
       isbn: "9786239869304",
       title: "Cerita islam pertamaku : Nabi Muhammad  SAW"
+    },
+    {
+      isbn: "9789793062792",
+      title: "Laskar Pelangi"
     }
   ].map(({ isbn, title }) => {
     it("can get detail book of isbn " + isbn, async () => {

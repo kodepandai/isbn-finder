@@ -22,10 +22,10 @@ export class Sdia35 extends BaseCrawler {
       signal: this.signal
     }).then(res => res.json());
 
-    if (!data?.["@graph"] || data?.["@graph"].findIndex(x => x.isbn == isbn) == -1) {
+    const detail = data?.["@graph"]?.find(x => x.isbn == isbn);
+    if (!detail) {
       throw new BookNotFound
     }
-    const detail = data["@graph"][0];
     return {
       title: detail.name,
       cover: {

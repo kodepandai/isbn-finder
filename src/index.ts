@@ -1,8 +1,10 @@
 import { OpenLibrary } from "./crawler/openlibrary";
 import { Sdia35 } from "./crawler/sdia35";
+import { Unair } from "./crawler/unair";
 
 const allCrawlers = {
   openlib: OpenLibrary,
+  unair: Unair,
   sdia35: Sdia35,
 }
 

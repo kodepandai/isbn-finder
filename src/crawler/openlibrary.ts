@@ -6,7 +6,7 @@ interface OpenLibraryBookData {
   key: string;
   title: string;
   authors: { url: string; name: string }[];
-  identifiers: Record<"isbn_10" | "lccn" | "oclc" | "openlibrary", string[]>;
+  identifiers: Record<"isbn_10" | "isbn_13" | "lccn" | "oclc" | "openlibrary", string[]>;
   classifications: Record<"lc_classifications", string[]>;
   subjects: { name: string; url: string }[];
   subject_places: { name: string; url: string }[];
@@ -61,7 +61,11 @@ export class OpenLibrary extends BaseCrawler {
     if (Object.keys(bookData).length === 0) {
       throw new BookNotFound();
     }
-    return Object.values(bookData)[0];
+    const data = Object.values(bookData).find(x => x.identifiers.isbn_13?.includes?.(isbn) || x.identifiers.isbn_10?.includes?.(isbn));
+    if (!data) {
+      throw new BookNotFound();
+    }
+    return data;
   }
 
   private async getDetail(isbn: string) {
