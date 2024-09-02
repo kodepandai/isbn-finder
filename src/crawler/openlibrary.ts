@@ -5,7 +5,7 @@ interface OpenLibraryBookData {
   url: string;
   key: string;
   title: string;
-  authors: { url: string; name: string }[];
+  authors?: { url: string; name: string }[];
   identifiers: Record<"isbn_10" | "isbn_13" | "lccn" | "oclc" | "openlibrary", string[]>;
   classifications: Record<"lc_classifications", string[]>;
   subjects: { name: string; url: string }[];
@@ -18,7 +18,7 @@ interface OpenLibraryBookData {
     borrow_url: string;
     checkedout: boolean;
   }[];
-  publishers: { name: string }[];
+  publishers?: { name: string }[];
   publish_date: string;
   cover: {
     small: string;
@@ -45,8 +45,8 @@ export class OpenLibrary extends BaseCrawler {
     return {
       title: data.title,
       cover: data.cover,
-      authors: data.authors.map((a) => a.name),
-      publishers: data.publishers.map((p) => p.name),
+      authors: data.authors?.map((a) => a.name)||[],
+      publishers: data.publishers?.map((p) => p.name)||[],
       publish_date: data.publish_date,
       number_of_pages: data.number_of_pages,
       description: detail.details.description?.value,
