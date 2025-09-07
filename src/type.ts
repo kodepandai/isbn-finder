@@ -4,7 +4,7 @@ export interface Book {
     small?: string;
     medium?: string;
     large?: string;
-  }
+  };
   authors: string[];
   publishers: string[];
   publish_date: string;

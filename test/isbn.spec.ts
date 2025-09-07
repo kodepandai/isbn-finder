@@ -1,4 +1,4 @@
-import { it, expect, describe } from "bun:test";
+import { describe, expect, it } from "bun:test";
 import { resolve } from "../src";
 
 describe("get book by isbn", () => {
@@ -25,11 +25,22 @@ describe("get book by isbn", () => {
     },
     {
       isbn: "9781784408305",
-      title: "rescue vehicles"
-    }
-  ].map(({ isbn, title }) => {
-    it("can get detail book of isbn " + isbn, async () => {
-      const res = await resolve(isbn);
+      title: "rescue vehicles",
+    },
+  ].forEach(({ isbn, title }) => {
+    it(`can get detail book of isbn ${isbn}`, async () => {
+      const res = await resolve(isbn, {
+        google: {
+          enabled: true,
+          key: process.env.GOOGLE_API_KEY,
+        },
+        openlib: {
+          enabled: true,
+        },
+        sdia35: {
+          enabled: true,
+        },
+      });
       if (res?.cover) {
         expect(res.cover).toEqual(
           expect.objectContaining({
