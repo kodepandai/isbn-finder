@@ -1,6 +1,6 @@
 {
   "name": "isbn-finder",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "module": "src/index.ts",
   "files": [
     "src/*"

@@ -27,6 +27,10 @@ describe("get book by isbn", () => {
       isbn: "9781784408305",
       title: "rescue vehicles",
     },
+    {
+      isbn: "9789790757653",
+      title: "Thomas si penolong",
+    },
   ].forEach(({ isbn, title }) => {
     it(`can get detail book of isbn ${isbn}`, async () => {
       const res = await resolve(isbn, {

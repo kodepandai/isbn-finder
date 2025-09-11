@@ -105,11 +105,13 @@ export class Google extends BaseCrawler {
 
     return {
       title: item.volumeInfo.title,
-      cover: {
-        small: item.volumeInfo.imageLinks.small,
-        medium: item.volumeInfo.imageLinks.medium,
-        large: item.volumeInfo.imageLinks.large,
-      },
+      ...(item.volumeInfo.imageLinks && {
+        cover: {
+          small: item.volumeInfo.imageLinks?.small,
+          medium: item.volumeInfo.imageLinks?.medium,
+          large: item.volumeInfo.imageLinks?.large,
+        },
+      }),
       authors: item.volumeInfo.authors,
       publishers: [item.volumeInfo.publisher],
       publish_date: item.volumeInfo.publishedDate,
