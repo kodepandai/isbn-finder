@@ -105,9 +105,9 @@ export class Google extends BaseCrawler {
       signal: this.signal,
     })
       .then(async (res) => {
-        const json = await res.json();
+        const json = (await res.json()) as any;
         if (!("error" in json)) {
-          item = json;
+          item = json as GoogleBookItem;
         }
       })
       .catch(() => {
