@@ -98,18 +98,38 @@ export class Google extends BaseCrawler {
     if (data.totalItems === 0) {
       throw new BookNotFound();
     }
+    let item: GoogleBookItem = data.items[0] as GoogleBookItem;
     const selfLink = data.items[0].selfLink;
-    const item: GoogleBookItem = await fetch(selfLink, {
+
+    await fetch(selfLink, {
       signal: this.signal,
-    }).then((res) => res.json());
+    })
+      .then(async (res) => {
+        const json = await res.json();
+        if (!("error" in json)) {
+          item = json;
+        }
+      })
+      .catch(() => {
+        //
+      });
+    if (!item) {
+      throw new BookNotFound();
+    }
 
     return {
       title: item.volumeInfo.title,
       ...(item.volumeInfo.imageLinks && {
         cover: {
-          small: item.volumeInfo.imageLinks?.small,
-          medium: item.volumeInfo.imageLinks?.medium,
-          large: item.volumeInfo.imageLinks?.large,
+          small:
+            item.volumeInfo.imageLinks?.small ||
+            item.volumeInfo.imageLinks?.smallThumbnail,
+          medium:
+            item.volumeInfo.imageLinks?.medium ||
+            item.volumeInfo.imageLinks?.thumbnail,
+          large:
+            item.volumeInfo.imageLinks?.large ||
+            item.volumeInfo.imageLinks?.thumbnail,
         },
       }),
       authors: item.volumeInfo.authors,

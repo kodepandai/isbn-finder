@@ -35,8 +35,8 @@ describe("get book by isbn", () => {
       isValid: true,
     },
     {
-      isbn: "9789790757653",
-      title: "Thomas si penolong",
+      isbn: "9789790636705",
+      title: "Nabi ilyas as.",
       isValid: true,
     },
     {
@@ -89,6 +89,26 @@ describe("get book by isbn", () => {
           }),
         );
       }
+    });
+
+    it(`can get multiple results for isbn when returnMultiple is true`, async () => {
+      const resolver = resolve(isbn, {
+        returnMultiple: true,
+        google: {
+          enabled: true,
+          key: process.env.GOOGLE_API_KEY,
+        },
+        openlib: {
+          enabled: true,
+        },
+        sdia35: {
+          enabled: true,
+        },
+      });
+      const res = await resolver;
+      expect(Array.isArray(res)).toBe(true);
+      expect(res.length).toBeGreaterThan(0);
+      expect(res[0].title).toBeDefined();
     });
   });
 });

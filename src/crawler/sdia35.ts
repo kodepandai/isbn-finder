@@ -18,12 +18,15 @@ interface Sdia35Res {
 
 export class Sdia35 extends BaseCrawler {
   async getBookByIsbn(isbn: string): Promise<Book> {
-    const data: Sdia35Res = await fetch(
+    const res = await fetch(
       `https://library.sdia35.sch.id/index.php?JSONLD=true&isbn=${isbn}&search=search`,
       {
         signal: this.signal,
       },
-    ).then((res) => res.json());
+    );
+
+    const text = await res.text();
+    const data: Sdia35Res | null = text ? JSON.parse(text) : null;
 
     const detail = data?.["@graph"]?.find((x) => x.isbn === isbn);
     if (!detail) {

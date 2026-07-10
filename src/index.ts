@@ -8,7 +8,9 @@ const allCrawlers = {
   openlib: OpenLibrary,
   sdia35: Sdia35,
 };
-type Crawlers = Partial<
+export type CrawlerOptions = {
+  returnMultiple?: boolean;
+} & Partial<
   Record<
     keyof typeof allCrawlers,
     {
@@ -21,7 +23,7 @@ type Crawlers = Partial<
 const defaultCrawlers = {
   google: {
     enabled: true,
-    key: process.env.GOOGLE_API_KEY,
+    key: undefined as string | undefined,
   },
   openlib: {
     enabled: true,
@@ -30,11 +32,34 @@ const defaultCrawlers = {
     enabled: true,
   },
 };
-export async function resolve(isbn: string, configuredCrawlers: Crawlers) {
+
+import type { Book } from "./type";
+
+type CrawlerResponse = Book & {
+  crawler: keyof typeof allCrawlers;
+};
+
+export function resolve(
+  isbn: string,
+  options: CrawlerOptions & { returnMultiple: true },
+): Promise<CrawlerResponse[]>;
+export function resolve(
+  isbn: string,
+  options?: CrawlerOptions & { returnMultiple?: false },
+): Promise<CrawlerResponse | undefined>;
+export async function resolve(
+  isbn: string,
+  options: CrawlerOptions = {},
+): Promise<CrawlerResponse | CrawlerResponse[] | undefined> {
   if (!isValidIsbn(isbn)) {
     throw new InvalidISBN();
   }
-  const crawlers = { ...defaultCrawlers, ...configuredCrawlers } as Crawlers;
+
+  const { returnMultiple, ...configuredCrawlers } = options;
+  const crawlers = {
+    ...defaultCrawlers,
+    ...configuredCrawlers,
+  } as CrawlerOptions;
   const enabledCrawlers = Object.fromEntries(
     Object.entries(allCrawlers).filter(
       ([key]) => crawlers[key as keyof typeof allCrawlers]?.enabled,
@@ -59,16 +84,29 @@ export async function resolve(isbn: string, configuredCrawlers: Crawlers) {
     Object.entries(crawlerInstances).map(async ([key, c]) => {
       const res = await c.getBookByIsbn(isbn);
       if (res) {
-        Object.entries(controllers)
-          .filter(([ckey]) => ckey !== key)
-          .forEach(([_, x]) => {
-            x.abort();
-          });
-        return res;
+        if (!returnMultiple) {
+          Object.entries(controllers)
+            .filter(([ckey]) => ckey !== key)
+            .forEach(([_, x]) => {
+              x.abort();
+            });
+        }
+        return {
+          ...res,
+          crawler: key as keyof typeof allCrawlers,
+        };
       }
     }),
   );
-  return allRes.find((res) => res.status === "fulfilled")?.value;
+
+  const res = allRes
+    .filter((res) => res.status === "fulfilled" && res.value !== undefined)
+    .map((res) => (res as PromiseFulfilledResult<CrawlerResponse>).value);
+  if (returnMultiple) {
+    return res;
+  }
+
+  return res[0];
 }
 
 const isValidIsbn10 = (isbn: string) => {
